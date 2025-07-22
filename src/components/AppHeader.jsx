@@ -1,5 +1,5 @@
 export default function AppHeader() {
     return (
-        <h1 className="container mx-auto text-center mt-5">Lista di Attrici</h1>
+        <h1 className="container mx-auto text-center mt-5">Lista di Attrici/Attori</h1>
     )
 }
