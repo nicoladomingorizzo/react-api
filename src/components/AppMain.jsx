@@ -1,145 +1,129 @@
 import { useEffect, useState } from "react";
 
 export default function AppMain() {
-
-    const actressUrl = 'https://lanciweb.github.io/demo/api/actresses/';
-    const actorsUrl = 'https://lanciweb.github.io/demo/api/actors/';
-    const [actressData, setActressData] = useState([]);
-    const [actorsData, setActorsData] = useState([]);
-    const [allActorsList, setAllActorsList] = useState([]);
-    const [actorsFilteredList, setActorsFilteredList] = useState([]);
-    const [searchList, setSearchList] = useState('');
-    const [searchName, setSearchName] = useState('');
-
-
+    const actressUrl = "https://lanciweb.github.io/demo/api/actresses/";
+    const actorsUrl = "https://lanciweb.github.io/demo/api/actors/";
+    const [actressData, setActressData] = useState([]); // Stato per i dati delle attrici
+    const [actorsData, setActorsData] = useState([]); // Stato per i dati degli attori
+    const [allActorsList, setAllActorsList] = useState([]); // Stato per tutti gli attori/attrici
+    const [actorsFilteredList, setActorsFilteredList] = useState([]); // Stato per la lista filtrata
+    const [searchList, setSearchList] = useState(""); // Stato per la selezione tra "Attori" e "Attrici"
+    const [searchName, setSearchName] = useState(""); // Stato per il nome da cercare
 
     useEffect(() => {
+        // Recupero dei dati per attrici e attori
         const p1 = fetch(actressUrl)
-            .then(res => res.json())
-            .then(data => {
-                setActressData(data)
+            .then((res) => res.json())
+            .then((data) => {
+                setActressData(data); // Salvo i dati delle attrici
                 return data;
             });
         const p2 = fetch(actorsUrl)
-            .then(res => res.json())
-            .then(data => {
-                setActorsData(data)
+            .then((res) => res.json())
+            .then((data) => {
+                setActorsData(data); // Salvo i dati degli attori
                 return data;
             });
-        /* //NOTE: promise all serve per salvare entrambe le liste nel nostro caso quando le promise sono eseguite alla fine 
-        Promise.all([p1, p2]).then(values => {
-            console.log('vals:', values)
-            console.log('vals:', values[0])
-            console.log('vals:', values[1])
-            setAllActorsList([...values[0], ...values[1]])
-            })
-            */
+
+        // Quando entrambe le promesse sono completate, unisco i dati di attori e attrici in un'unica lista
+        Promise.all([p1, p2]).then((values) => {
+            setAllActorsList([...values[0], ...values[1]]);
+        });
     }, []);
 
     useEffect(() => {
-        if (searchList.length && searchList == 'Attrici') {
-            setAllActorsList(actressData)
-        } else if (searchList.length && searchList == 'Attori') {
-            setAllActorsList(actorsData)
+        // Ogni volta che la selezione cambia (Attrici/Attori), aggiorno la lista filtrata
+        if (searchList === "Attrici") {
+            setActorsFilteredList(actressData); // Solo le attrici
+        } else if (searchList === "Attori") {
+            setActorsFilteredList(actorsData); // Solo gli attori
         } else {
-            setAllActorsList([]);
+            setActorsFilteredList([]); // Reset se nessuna selezione
         }
-    }, [searchList])
+    }, [searchList, actressData, actorsData]); // Dipende dalla selezione dell'utente
 
     useEffect(() => {
-        if (searchName.trim() !== '') {
-            const filteredActor = allActorsList.filter(actor =>
+        // Applicazione del filtro per nome
+        if (searchName.trim() !== "") {
+            // Se l'utente ha digitato qualcosa nella barra di ricerca, filtro la lista
+            const filteredActor = actorsFilteredList.filter((actor) =>
                 actor.name.toLowerCase().includes(searchName.toLowerCase())
             );
-            setActorsFilteredList(filteredActor);
+            setActorsFilteredList(filteredActor); // Imposto la lista filtrata
         } else {
-            setActorsFilteredList(allActorsList); // reset filtro se la barra è vuota
+            // Se la barra di ricerca è vuota, resetto la lista filtrata e mostro quella selezionata
+            if (searchList === "Attrici") {
+                setActorsFilteredList(actressData);
+            } else if (searchList === "Attori") {
+                setActorsFilteredList(actorsData);
+            } else {
+                setActorsFilteredList([]); // Reset se nessuna selezione
+            }
         }
-    }, [searchName, allActorsList]); //FIXME: Non funziona il filter by name
-
+    }, [searchName, searchList, actressData, actorsData]); // Dipende dalla ricerca, dalla selezione e dai dati
 
     return (
         <>
-            <select className="form-select container my-4 ms-auto py-3 px-4" aria-label="Default select example" onChange={e => setSearchList(e.target.value)}>
-                <option value=''>Scegli una lista (attrici, attori)</option>
+            {/* Selettore per scegliere tra "Attori" e "Attrici" */}
+            <select
+                className="form-select container my-4 ms-auto py-3 px-4"
+                aria-label="Default select example"
+                onChange={(e) => setSearchList(e.target.value)} // Imposta la selezione
+            >
+                <option value="">Scegli una lista (attrici, attori)</option>
                 <option value="Attori">Attori</option>
                 <option value="Attrici">Attrici</option>
             </select>
-            <input className="container form-control my-2 py-2 ps-4 mx-auto" placeholder="Cerca un titolo" type="text" value={searchName} onChange={(e => setSearchName(e.target.value))} />
+            {/* Barra di ricerca per il nome */}
+            <input
+                className="container form-control my-2 py-2 ps-4 mx-auto"
+                placeholder="Cerca un titolo"
+                type="text"
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)} // Imposta il nome da cercare
+            />
             <section>
+                {/* Visualizza la lista filtrata, se disponibile */}
                 {actorsFilteredList.length ? (
                     <div className="container">
                         <div className="row row-cols-1 row-cols-md-3 g-3">
-                            {allActorsList && allActorsList.map((singleActor) => {
-                                return (
-                                    <div key={singleActor.id} className="col">
-                                        <div className="card h-100 my-1 p-3 ">
-                                            <div className="card-image">
-                                                <figure>
-                                                    <img className='' src={singleActor.image} alt={`${singleActor.name} photo`} />
-                                                </figure>
-                                            </div>
-                                            <div>
-                                                {`Name: ${singleActor.name}`}<br />
-                                                {`Year of birth: ${singleActor.birth_year}`}<br />
-                                                {`Nationality: ${singleActor.nationality}`}<br />
-                                                {`Biography: ${singleActor.biography}`}<br />
-                                                {`Awards: ${singleActor.awards}`}<br />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-                ) : (
-                    <div className="container">
-                        <div className="row row-cols-1 row-cols-md-3 g-3">
-                            {actressData && actressData.map((actress) => {
-                                return (
-                                    <div key={actress.id} className="col">
-                                        <div className="card h-100 my-1 p-3 ">
-                                            <div className="card-image">
-                                                <figure>
-                                                    <img className='' src={actress.image} alt={`${actress.name} photo`} />
-                                                </figure>
-                                            </div>
-                                            <div>
-                                                {`Name: ${actress.name}`} <br />
-                                                {`Year of birth: ${actress.birth_year}`} <br />
-                                                {`Nationality: ${actress.nationality}`} <br />
-                                                {`Biography: ${actress.biography}`} <br />
-                                                {`Awards: ${actress.awards}`} <br />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            })}
-
-                            {actorsData && actorsData.map(actor => {
+                            {actorsFilteredList.map((actor) => {
                                 return (
                                     <div key={actor.id} className="col">
                                         <div className="card h-100 my-1 p-3 ">
                                             <div className="card-image">
                                                 <figure>
-                                                    <img className='' src={actor.image} alt={`${actor.name} photo`} />
+                                                    {/* Visualizza l'immagine dell'attore o attrice */}
+                                                    <img
+                                                        className=""
+                                                        src={actor.image}
+                                                        alt={`${actor.name} photo`}
+                                                    />
                                                 </figure>
                                             </div>
                                             <div>
-                                                {`Name: ${actor.name}`} <br />
-                                                {`Year of birth: ${actor.birth_year}`} <br />
-                                                {`Nationality: ${actor.nationality}`} <br />
-                                                {`Biography: ${actor.biography}`} <br />
-                                                {`Awards: ${actor.awards}`} <br />
+                                                {/* Mostra i dettagli dell'attore/attrice */}
+                                                Name: {actor.name}
+                                                <br />
+                                                Year of birth: {actor.birth_year}
+                                                <br />
+                                                Nationality: {actor.nationality}
+                                                <br />
+                                                Biography: {actor.biography}
+                                                <br />
+                                                Awards: {actor.awards}
+                                                <br />
                                             </div>
                                         </div>
                                     </div>
-                                )
+                                );
                             })}
                         </div>
                     </div>
+                ) : (
+                    <div>No actors or actresses found.</div> // Messaggio quando non ci sono risultati
                 )}
             </section>
         </>
-    )
-};
+    );
+}
