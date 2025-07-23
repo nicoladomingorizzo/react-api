@@ -70,21 +70,21 @@ export default function AppMain() {
                 {actorsFilteredList.length ? (
                     <div className="container">
                         <div className="row row-cols-1 row-cols-md-3 g-3">
-                            {allActorsList && allActorsList.map((actress) => {
+                            {allActorsList && allActorsList.map((singleActor) => {
                                 return (
-                                    <div key={actress.id} className="col">
+                                    <div key={singleActor.id} className="col">
                                         <div className="card h-100 my-1 p-3 ">
                                             <div className="card-image">
                                                 <figure>
-                                                    <img className='' src={actress.image} alt={`${actress.name} photo`} />
+                                                    <img className='' src={singleActor.image} alt={`${singleActor.name} photo`} />
                                                 </figure>
                                             </div>
                                             <div>
-                                                {`Name: ${actress.name}`}<br />
-                                                {`Year of birth: ${actress.birth_year}`}<br />
-                                                {`Nationality: ${actress.nationality}`}<br />
-                                                {`Biography: ${actress.biography}`}<br />
-                                                {`Awards: ${actress.awards}`}<br />
+                                                {`Name: ${singleActor.name}`}<br />
+                                                {`Year of birth: ${singleActor.birth_year}`}<br />
+                                                {`Nationality: ${singleActor.nationality}`}<br />
+                                                {`Biography: ${singleActor.biography}`}<br />
+                                                {`Awards: ${singleActor.awards}`}<br />
                                             </div>
                                         </div>
                                     </div>
